@@ -1,0 +1,135 @@
+from collections import deque
+
+def waterJugBFS(a, b, target):
+    q, m, isSolvable, path = deque([((0, 0), None)]), set(), False, []
+
+    while q:
+        current_state, parent_state = q.popleft()
+
+        if current_state in m: continue
+        path.append((current_state, parent_state))
+        m.add(current_state)
+
+        if current_state[0] == target or current_state[1] == target:
+            isSolvable = True
+            break
+
+        for x, y in [(a, current_state[1]), (current_state[0], b), (0, current_state[1]), (current_state[0], 0)]:
+            q.append(((x, y), current_state))
+
+        pour = min(current_state[0], b - current_state[1])
+        q.append(((current_state[0] - pour, current_state[1] + pour), current_state))
+
+        pour = min(a - current_state[0], current_state[1])
+        q.append(((current_state[0] + pour, current_state[1] - pour), current_state))
+
+    return "No solution" if not isSolvable else path
+
+def display_tree(path):
+    tree = {}
+    for state, parent_state in path:
+        state_key, parent_key = str(state), str(parent_state) if parent_state is not None else None
+        if parent_key:
+            parent_key = str(parent_key)
+            tree.setdefault(parent_key, {})[state_key] = {}
+        else:
+            tree[state_key] = {}
+    return tree
+
+jug_a_capacity, jug_b_capacity, target_amount = 4, 3, 2
+result = waterJugBFS(jug_a_capacity, jug_b_capacity, target_amount)
+print("No solution" if result == "No solution" else json.dumps(display_tree(result), indent=4))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+================================================================
+from collections import deque
+
+def waterJugBFS(a, b, target):
+    m = set()
+    isSolvable = False
+    path = []
+
+    q = deque()
+
+    # Each entry in the queue is represented as (current_state, parent_state)
+    q.append(((0, 0), None))
+
+    while len(q) > 0:
+        current_state, parent_state = q.popleft()
+
+        if current_state in m:
+            continue
+
+        path.append((current_state, parent_state))
+
+        m.add(current_state)
+
+        if current_state[0] == target or current_state[1] == target:
+            isSolvable = True
+            break
+
+        # Rule 1: Fill jug a
+        q.append(((a, current_state[1]), current_state))
+
+        # Rule 2: Fill jug b
+        q.append(((current_state[0], b), current_state))
+
+        # Rule 3: Empty jug a
+        q.append(((0, current_state[1]), current_state))
+
+        # Rule 4: Empty jug b
+        q.append(((current_state[0], 0), current_state))
+
+        # Rule 5: Pour from a to b until b is full or a is empty
+        pour = min(current_state[0], b - current_state[1])
+        q.append(((current_state[0] - pour, current_state[1] + pour), current_state))
+
+        # Rule 6: Pour from b to a until a is full or b is empty
+        pour = min(a - current_state[0], current_state[1])
+        q.append(((current_state[0] + pour, current_state[1] - pour), current_state))
+
+    if not isSolvable:
+        return "No solution"
+
+    return path
+
+def display_tree(path):
+    tree = {}
+    for state, parent_state in path:
+        state_key = str(state)
+        parent_key = str(parent_state) if parent_state is not None else None
+
+        if parent_key is not None:
+            parent_key = str(parent_key)
+            if parent_key not in tree:
+                tree[parent_key] = {}
+            tree[parent_key][state_key] = {}
+        else:
+            tree[state_key] = {}
+
+    return tree
+
+jug_a_capacity = 4
+jug_b_capacity = 3
+target_amount = 2
+
+result = waterJugBFS(jug_a_capacity, jug_b_capacity, target_amount)
+if result == "No solution":
+    print("No solution")
+else:
+    print("Solution path:")
+    tree = display_tree(result)
+    import json
+    print(json.dumps(tree, indent=4))
