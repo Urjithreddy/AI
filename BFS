@@ -1,0 +1,56 @@
+from collections import deque
+
+class TreeNode:
+    def __init__(self, name):
+        self.name = name
+        self.children = []
+
+    def add_child(self, child_node):
+        self.children.append(child_node)
+
+def breadth_first_search(root_node, target_name):
+    open_list, parent_dict = deque([root_node]), {}
+
+    while open_list:
+        current_node = open_list.popleft()
+        if current_node.name == target_name:
+            return parent_dict
+        for child_node in current_node.children:
+            if child_node.name not in parent_dict:
+                open_list.append(child_node)
+                parent_dict[child_node.name] = current_node.name
+
+    return None
+
+def display_tree(root, level=0):
+    if root:
+        print("  " * level + root.name)
+        for child in root.children:
+            display_tree(child, level + 1)
+
+if __name__ == "__main__":
+    A, B, C, D, E, F, G = [TreeNode(name) for name in "ABCDEFG"]
+
+    A.add_child(B)
+    A.add_child(C)
+    B.add_child(D)
+    B.add_child(E)
+    C.add_child(F)
+    C.add_child(G)
+
+    start_node = A
+    goal_node_name = input("Enter the Node You Want to Search: ")
+    result_dict = breadth_first_search(start_node, goal_node_name)
+
+    if result_dict:
+        path = [goal_node_name]
+        while goal_node_name != start_node.name:
+            goal_node_name = result_dict[goal_node_name]
+            path.append(goal_node_name)
+        path.reverse()
+        print("Path found:", " -> ".join(path))
+    else:
+        print("Goal node not reachable.")
+
+    print("\nTree Structure:")
+    display_tree(start_node)
