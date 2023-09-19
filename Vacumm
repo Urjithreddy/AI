@@ -1,0 +1,15 @@
+from tabulate import tabulate
+
+table = []
+
+while True:
+    a = input("Enter the room a or b to clean or press 0 to exit: ")
+    if a == "0":
+        break
+    b = input("Enter clean or dirty: ")
+    
+    action = "Move right" if a == "a" and b == "clean" else "Move left" if a == "b" and b == "clean" else "Suck"
+    print(action)
+    table.append([a, b, action])
+
+print(tabulate(table, headers=["Room", "Status", "Action"], tablefmt="grid"))
