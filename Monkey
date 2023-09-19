@@ -1,51 +1,57 @@
+import numpy as np
+import random
 from collections import deque
 
-def solve_monkey_banana_maze(maze):
-    def bfs(start_x, start_y, target):
-        queue = deque([(start_x, start_y, [])])
-        visited = set()
+def generate_grid(size=5, start_value=1, box_value=2, banana_value=3):
+    grid = np.zeros((size, size), dtype=int)
+    start_pos = (0, 0)
+    grid[start_pos] = start_value
+    
+    def place_item(value):
+        while True:
+            item_pos = (random.randint(0, size-1), random.randint(0, size-1))
+            if grid[item_pos] == 0:
+                grid[item_pos] = value
+                return item_pos
+                
+    box_pos = place_item(box_value)
+    banana_pos = place_item(banana_value)
+    
+    return grid, start_pos, box_pos, banana_pos
 
-        while queue:
-            x, y, path = queue.popleft()
+def bfs_2d(grid, start, target_value):
+    rows, cols = grid.shape
+    visited = np.zeros((rows, cols), dtype=bool)
+    queue = deque([(start, [])])
+    directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]  
+    
+    while queue:
+        (current_row, current_col), path = queue.popleft()
+        
+        if grid[current_row][current_col] == target_value:
+            return path + [(current_row, current_col)]
+        
+        visited[current_row][current_col] = True
+        
+        for dr, dc in directions:
+            new_row, new_col = current_row + dr, current_col + dc
+            
+            if 0 <= new_row < rows and 0 <= new_col < cols and not visited[new_row][new_col] and grid[new_row][new_col] != 1:
+                queue.append(((new_row, new_col), path + [(current_row, current_col)]))
+    
+    return None
 
-            if maze[x][y] == target:
-                return path
+grid, start_pos, box_pos, banana_pos = generate_grid()
 
-            if (x, y) in visited or maze[x][y] == 'wall':
-                continue
+path_to_box = bfs_2d(grid, start_pos, 2)
+print("Monkey found the box at position:", box_pos)
 
-            visited.add((x, y))
+path_to_banana = bfs_2d(grid, box_pos, 3)
+print("Monkey found the banana at position:", banana_pos)
 
-            for dx, dy, move in [(1, 0, 'down'), (-1, 0, 'up'), (0, 1, 'right'), (0, -1, 'left')]:
-                new_x, new_y = x + dx, y + dy
-                if 0 <= new_x < rows and 0 <= new_y < cols:
-                    queue.append((new_x, new_y, path + [(x, y, move)]))
+complete_path = path_to_box + path_to_banana[1:]
 
-        return []
-
-    rows, cols = len(maze), len(maze[0])
-    monkey_x, monkey_y = next((i, j) for i in range(rows) for j in range(cols) if maze[i][j] == 'start')
-
-    chair_path = bfs(monkey_x, monkey_y, 'chair')
-    banana_path = bfs(monkey_x, monkey_y, 'banana')
-
-    if chair_path and banana_path:
-        for x, y, move in chair_path + banana_path:
-            print(f"Monkey moves {move}")
-            maze[x][y] = 'visited'
-            for row in maze:
-                print(" ".join(row))
-            print("\n")
-        print("Monkey reached the banana!")
-    else:
-        print("Monkey couldn't reach the banana.")
-
-maze = [
-    ['wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
-    ['wall', 'start', 'empty', 'empty', 'empty', 'wall'],
-    ['wall', 'empty', 'empty', 'chair', 'empty', 'wall'],
-    ['wall', 'empty', 'empty', 'banana', 'empty', 'wall'],
-    ['wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
-]
-
-solve_monkey_banana_maze(maze)
+print("Grid:\n", grid)
+print("\nComplete Path:\n")
+for i, pos in enumerate(complete_path):
+    print(f"Step {i+1}: Move to position {pos}")
