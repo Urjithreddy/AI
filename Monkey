@@ -1,0 +1,51 @@
+from collections import deque
+
+def solve_monkey_banana_maze(maze):
+    def bfs(start_x, start_y, target):
+        queue = deque([(start_x, start_y, [])])
+        visited = set()
+
+        while queue:
+            x, y, path = queue.popleft()
+
+            if maze[x][y] == target:
+                return path
+
+            if (x, y) in visited or maze[x][y] == 'wall':
+                continue
+
+            visited.add((x, y))
+
+            for dx, dy, move in [(1, 0, 'down'), (-1, 0, 'up'), (0, 1, 'right'), (0, -1, 'left')]:
+                new_x, new_y = x + dx, y + dy
+                if 0 <= new_x < rows and 0 <= new_y < cols:
+                    queue.append((new_x, new_y, path + [(x, y, move)]))
+
+        return []
+
+    rows, cols = len(maze), len(maze[0])
+    monkey_x, monkey_y = next((i, j) for i in range(rows) for j in range(cols) if maze[i][j] == 'start')
+
+    chair_path = bfs(monkey_x, monkey_y, 'chair')
+    banana_path = bfs(monkey_x, monkey_y, 'banana')
+
+    if chair_path and banana_path:
+        for x, y, move in chair_path + banana_path:
+            print(f"Monkey moves {move}")
+            maze[x][y] = 'visited'
+            for row in maze:
+                print(" ".join(row))
+            print("\n")
+        print("Monkey reached the banana!")
+    else:
+        print("Monkey couldn't reach the banana.")
+
+maze = [
+    ['wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
+    ['wall', 'start', 'empty', 'empty', 'empty', 'wall'],
+    ['wall', 'empty', 'empty', 'chair', 'empty', 'wall'],
+    ['wall', 'empty', 'empty', 'banana', 'empty', 'wall'],
+    ['wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
+]
+
+solve_monkey_banana_maze(maze)
