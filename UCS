@@ -1,0 +1,151 @@
+from collections import deque
+
+class CostNode:
+    def __init__(self, name, parent=None, cost=0):
+        self.name, self.parent, self.cost, self.children = name, parent, cost, []
+
+    def add_child(self, name, cost):
+        child = CostNode(name, parent=self, cost=cost)
+        self.children.append(child)
+        return child
+
+def uniform_cost_search(root, target):
+    open_list, closed_set = deque([(root, root.cost)]), set()
+
+    while open_list:
+        node, cost = open_list.popleft()
+
+        if node.name == target:
+            return node
+
+        closed_set.add(node)
+
+        for child in node.children:
+            if child not in closed_set:
+                open_list.append((child, cost + child.cost))
+
+        open_list = deque(sorted(open_list, key=lambda item: item[1]))
+
+    return None
+
+A = CostNode("A")
+B, C = A.add_child("B", 7), A.add_child("C", 3)
+D, E = B.add_child("D", 4), B.add_child("E", 8)
+F, G = C.add_child("F", 4), C.add_child("G", 6)
+
+def display_tree(node, indent=0):
+    print("  " * indent + node.name)
+    for child in node.children:
+        display_tree(child, indent + 1)
+
+print("Tree structure:")
+display_tree(A)
+
+start_node = A
+goal_node_name = input("Enter the Node to Search: ")
+result_node = uniform_cost_search(start_node, goal_node_name)
+
+if result_node:
+    path, total_cost = [result_node.name], result_node.cost
+    while result_node.parent:
+        result_node = result_node.parent
+        path.append(result_node.name)
+        total_cost += result_node.cost
+    path.reverse()
+    print("Path found:", " -> ".join(path))
+    print("Total Cost:", total_cost)
+else:
+    print("Goal node not reachable.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+from collections import deque
+
+class CostNode:
+    def __init__(self, name, parent=None, cost=0):
+        self.name, self.parent, self.cost, self.children = name, parent, cost, []
+
+    def add_child(self, name, cost):
+        child = CostNode(name, parent=self, cost=cost)
+        self.children.append(child)
+        return child
+
+def uniform_cost_search(root, target):
+    open_list, closed_set = deque([(root, root.cost)]), set()
+
+    while open_list:
+        node, cost = open_list.popleft()
+
+        if node.name == target:
+            return node
+
+        closed_set.add(node)
+
+        for child in node.children:
+            if child not in closed_set:
+                open_list.append((child, cost + child.cost))
+
+        open_list = deque(sorted(open_list, key=lambda item: item[1]))
+
+    return None
+
+# Create the tree
+A = CostNode("A")
+B, C = A.add_child("B", 7), A.add_child("C", 3)
+D, E = B.add_child("D", 4), B.add_child("E", 8)
+F, G = C.add_child("F", 4), C.add_child("G", 6)
+
+# Add more nodes
+H = D.add_child("H", 5)
+I = D.add_child("I", 3)
+J = E.add_child("J", 6)
+K = F.add_child("K", 2)
+L = G.add_child("L", 4)
+
+def display_tree(node, indent=0):
+    print("  " * indent + node.name)
+    for child in node.children:
+        display_tree(child, indent + 1)
+
+print("Tree structure:")
+display_tree(A)
+
+start_node = A
+goal_node_name = input("Enter the Node to Search: ")
+result_node = uniform_cost_search(start_node, goal_node_name)
+
+if result_node:
+    path, total_cost = [result_node.name], result_node.cost
+    while result_node.parent:
+        result_node = result_node.parent
+        path.append(result_node.name)
+        total_cost += result_node.cost
+    path.reverse()
+    print("Path found:", " -> ".join(path))
+    print("Total Cost:", total_cost)
+else:
+    print("Goal node not reachable.")
